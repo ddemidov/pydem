@@ -1,0 +1,7 @@
+*.swp
+build
+*.xmf
+*.h5
+dist
+__pycache__
+*.egg-info

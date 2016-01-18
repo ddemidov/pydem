@@ -1,0 +1,2 @@
+recursive-include vexcl *.hpp
+recursive-include pybind11 *.h

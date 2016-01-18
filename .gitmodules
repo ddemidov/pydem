@@ -1,0 +1,6 @@
+[submodule "pybind11"]
+	path = pybind11
+	url = https://github.com/wjakob/pybind11.git
+[submodule "vexcl"]
+	path = vexcl
+	url = https://github.com/ddemidov/vexcl.git
