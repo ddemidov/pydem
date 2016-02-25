@@ -22,7 +22,7 @@ class dem {
                 int npoints, int nconn,
                 const std::vector< std::vector< std::shared_ptr<potential> > > &P,
                 const vec2d *_coord, const double *_mass,
-                const double *_radius, const double *_scale, const int *_type,
+                const double *_radius, const int *_type,
                 const int2int *_conn,
                 double cell_size = 2.0,
                 double stiffness = 1e6,
@@ -41,7 +41,7 @@ class dem {
                         vex::Filter::Count(1))),
             coord(ctx, npoints), vel(ctx, npoints), acc(ctx, npoints),
             mass(ctx, npoints, _mass), radius(ctx, npoints, _radius),
-            scale(ctx, npoints, _scale), type(ctx, npoints, _type),
+            type(ctx, npoints, _type),
             cell_coo(ctx, npoints), cell_idx(ctx, npoints),
             part_ord(ctx, npoints), min(ctx), max(ctx)
         {
@@ -124,7 +124,7 @@ class dem {
             // Compute acceleration
             compute_force(ctx.queue(0),
                     npoints, ncx, nc, time, cell_coo(0), part_ord(0),
-                    cell_ptr(0), p(0), v(0), mass(0), radius(0), scale(0),
+                    cell_ptr(0), p(0), v(0), mass(0), radius(0),
                     type(0), a(0)
                     );
 
@@ -153,7 +153,6 @@ class dem {
         vex::vector<vec2d>   acc;
         vex::vector<double>  mass;
         vex::vector<double>  radius;
-        vex::vector<double>  scale;
         vex::vector<int>     type;
 
         vex::vector<index_type> cell_coo;
@@ -375,7 +374,6 @@ class dem {
                 .parameter<global_ptr<const cl_double2>>("V")
                 .parameter<global_ptr<const double>>("M")
                 .parameter<global_ptr<const double>>("R")
-                .parameter<global_ptr<const double>>("S")
                 .parameter<global_ptr<const int>>("T")
                 .parameter<global_ptr<cl_double2>>("acc")
                 .close(")").open("{");
@@ -395,7 +393,7 @@ class dem {
             src.new_line() << "for(int ii = cell_ptr[cell_hash], ee = cell_ptr[cell_hash+1]; ii < ee; ++ii)"; src.open("{");
             src.new_line() << "int jj = part_ord[ii];";
             src.new_line() << "if (jj == idx) continue;";
-            src.new_line() << "f += S[jj] * interaction_force((p - P[jj]) / (r + R[jj]), t, T[jj]);";
+            src.new_line() << "f += interaction_force((p - P[jj]) / (r + R[jj]), t, T[jj]);";
             src.close("}").close("}").close("}");
             src.new_line() << "acc[idx] = f / m;";
             src.close("}").close("}");

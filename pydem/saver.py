@@ -5,14 +5,13 @@ import h5py
 from lxml import etree
 
 class saver(object):
-    def __init__(self, fname, type, mass, radius, scale):
+    def __init__(self, fname, type, mass, radius):
         self.fname = fname
         self.hdf = h5py.File('{0}.h5'.format(fname), 'w')
 
         self.hdf.create_dataset('type',   data=type)
         self.hdf.create_dataset('mass',   data=mass)
         self.hdf.create_dataset('radius', data=radius)
-        self.hdf.create_dataset('scale',  data=scale)
 
         self.time_ds = self.hdf.create_dataset('time', shape=(0,), maxshape=(None,))
 
@@ -77,7 +76,7 @@ class saver(object):
             data.attrib['Dimensions'] = '{0} 3'.format(coo.shape[0])
             data.text = '{0}.h5:/step-{1}/{2}'.format(self.fname, self.step, a)
 
-        for a in ('mass', 'type', 'radius', 'scale'):
+        for a in ('mass', 'type', 'radius'):
             attr = etree.SubElement(grid, 'Attribute')
             attr.attrib['Name'] = a
             attr.attrib['AttributeType'] = 'Scalar'

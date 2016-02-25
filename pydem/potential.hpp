@@ -20,11 +20,12 @@ class potential {
         potential(
                 std::vector<double> x,
                 std::vector<double> y,
+                double scale  = 1.0,
                 double xmin   = 0,
                 double xmax   = 5,
                 int grid_size = 8
                 )
-            : hinv(1), phi(x.empty() ? 0 : grid_size, 0.0)
+            : scale(scale), hinv(1), phi(x.empty() ? 0 : grid_size, 0.0)
         {
             precondition(x.size() == y.size(), "x and y arrays differ in size");
 
@@ -83,7 +84,7 @@ class potential {
                 }
             }
 
-            return y;
+            return y * scale;
         }
 
         void def_potential(vex::backend::source_generator &src, std::string name) const {
@@ -113,7 +114,7 @@ class potential {
                 src.new_line() << "        y += Bspline(j, s) * phi[k];";
             }
 
-            src.new_line() << "return d * y / r;";
+            src.new_line() << "return " << scale << " * d * y / r;";
             src.close("}");
         }
 
@@ -137,7 +138,7 @@ class potential {
         }
 
     private:
-        double radius, scale, x0, hinv;
+        double scale, x0, hinv;
         std::vector<double> phi;
 
         static inline double Bspline(int k, double t) {
@@ -165,11 +166,12 @@ class lennard_jones : public potential {
         lennard_jones(
                 std::vector<double> x,
                 std::vector<double> y,
+                double scale  = 1,
                 double xmin   = 0,
                 double xmax   = 5,
                 int grid_size = 8
                 )
-            : potential(x, residual(x, y), xmin, xmax, grid_size)
+            : potential(x, residual(x, y), scale, xmin, xmax, grid_size)
         {}
 
         double approx(double x) const {
@@ -208,11 +210,12 @@ class soft_sphere : public potential {
         soft_sphere(
                 std::vector<double> x,
                 std::vector<double> y,
+                double scale  = 1,
                 double xmin   = 0,
                 double xmax   = 5,
                 int grid_size = 8
                 )
-            : potential(x, residual(x, y), xmin, xmax, grid_size)
+            : potential(x, residual(x, y), scale, xmin, xmax, grid_size)
         {}
 
         double approx(double x) const {
