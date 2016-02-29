@@ -37,10 +37,17 @@ def show_video(fname):
     </video>
     """.format(base64.encodebytes(open('{0}.mp4'.format(fname), 'rb').read()).decode()))
 
-def make_video(fname, show=True, figsize=(12,8), vmax=None, cmap='inferno', s=9):
+def make_video(fname, show=True, figsize=(12,8), vmax=None, cmap='inferno', s=9, maxframes=None):
     with h5py.File('{0}.h5'.format(fname), 'r') as f:
         time = f['time'][:]
         n = time.shape[0]
+
+        if maxframes is None or maxframes > n:
+            stride = 1
+            frames = n
+        else:
+            stride = round(n / maxframes)
+            frames = n // stride
 
         if vmax is None:
             vmax = norm(f['step-0/vel'][:],axis=1).max()
@@ -49,8 +56,8 @@ def make_video(fname, show=True, figsize=(12,8), vmax=None, cmap='inferno', s=9)
         display(bar)
 
         def make_frame(step):
-            coo = f['step-{0}/coo'.format(step)][:]
-            vel = f['step-{0}/vel'.format(step)][:]
+            coo = f['step-{0}/coo'.format(step * stride)][:]
+            vel = f['step-{0}/vel'.format(step * stride)][:]
             L,H = amax(coo, axis=0)
 
             gcf().clear()
@@ -63,12 +70,12 @@ def make_video(fname, show=True, figsize=(12,8), vmax=None, cmap='inferno', s=9)
             colorbar()
             gca().set_aspect('equal')
 
-            bar.value = step
-            bar.description = '{0}/{1}'.format(step, n)
+            bar.value = step * stride
+            bar.description = '{0}/{1}'.format(step * stride, n)
             return dots
 
         fig = figure(figsize=figsize);
-        anim = animation.FuncAnimation(fig, make_frame, frames=n, interval=30)
+        anim = animation.FuncAnimation(fig, make_frame, frames=frames, interval=30)
         anim.save('{0}.mp4'.format(fname), bitrate=3200, extra_args=['-vcodec', 'libx264'])
 
         close()
