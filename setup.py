@@ -17,8 +17,7 @@ setup(
                 include_dirs=['pydem', 'pybind11/include', 'vexcl'],
                 libraries=['boost_system', 'boost_filesystem', 'OpenCL'],
                 extra_compile_args=['-O3', '-std=c++11', '-flto',
-                    '-Wno-deprecated-declarations', '-Wno-sign-compare'],
-                extra_link_args=['-flto']
+                    '-Wno-deprecated-declarations', '-Wno-sign-compare']
                 )
             ]
 )
